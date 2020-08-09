@@ -8,15 +8,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 import net.scrafet.model.Categoria;
+import net.scrafet.model.Vacante;
 import net.scrafet.repository.CategoriasRepository;
+import net.scrafet.repository.VacantesRepository;
 
 @SpringBootApplication
 public class JpaDemoApplication implements CommandLineRunner{
 	
 	@Autowired
-	private CategoriasRepository repo;
+	private CategoriasRepository repoCategorias;
+	
+	
+	@Autowired
+	private VacantesRepository repoVacantes;
 
 	public static void main(String[] args) {
 		SpringApplication.run(JpaDemoApplication.class, args);
@@ -25,14 +34,14 @@ public class JpaDemoApplication implements CommandLineRunner{
 
 	@Override
 	public void run(String... args) throws Exception {
-		existeId();
+		buscarVacantes();
 	}
 	
 	/**
 	 * Metodo count - interfaz CrudRepository
 	 */
 	private void conteo() {
-		long count = repo.count();
+		long count = repoCategorias.count();
 		System.out.println("Total Categorias : " + count);
 	}
 	
@@ -40,7 +49,7 @@ public class JpaDemoApplication implements CommandLineRunner{
 	 * Metodo ExistById - interfaz CrudRepository
 	 */
 	private void existeId() {
-		boolean existe = repo.existsById(5);
+		boolean existe = repoCategorias.existsById(5);
 		System.out.println("La categoria existe : " + existe);
 	}
 	
@@ -49,13 +58,13 @@ public class JpaDemoApplication implements CommandLineRunner{
 	 *  Metodo Save(update) - interfaz CrudRepository
 	 */
 	private void modificar() {
-Optional<Categoria> optional = repo.findById(2);
+Optional<Categoria> optional = repoCategorias.findById(2);
 		
 		if (optional.isPresent()) {
 			Categoria catTmp = optional.get();
 			catTmp.setNombre("Ingenieria de Software");
 			catTmp.setDescripcion("Desarrollo de Sistemas");
-			repo.save(catTmp);
+			repoCategorias.save(catTmp);
 			System.out.println(optional.get());
 		}
 	    else
@@ -67,9 +76,19 @@ Optional<Categoria> optional = repo.findById(2);
 	 * Metodo findAll - interfaz CrudRepository
 	 */
 	private void buscarTodos() {
-		Iterable<Categoria>  categorias = repo.findAll();
+		Iterable<Categoria>  categorias = repoCategorias.findAll();
 		for (Categoria cat : categorias) {
 			System.out.println(cat);
+		}
+		
+	}
+	/**
+	 * Metodo findAll - interfaz JpaRepository
+	 */
+	private void buscarTodosJpa() {
+		List<Categoria> categorias=repoCategorias.findAll();
+		for (Categoria c : categorias) {
+			System.out.println(c.getId() + " " + c.getNombre()  );
 		}
 	}
 	
@@ -77,7 +96,7 @@ Optional<Categoria> optional = repo.findById(2);
 	 * Metodo findById - interfaz CrudRepository
 	 */
 	private void buscarPorId() {
-		Optional<Categoria> optional = repo.findById(6);
+		Optional<Categoria> optional = repoCategorias.findById(6);
 		
 		if (optional.isPresent()) 
 			System.out.println(optional.get());
@@ -94,7 +113,7 @@ Optional<Categoria> optional = repo.findById(2);
 		ids.add(1);
 		ids.add(4);
 		ids.add(10);
-		Iterable<Categoria> categorias = repo.findAllById(ids);
+		Iterable<Categoria> categorias = repoCategorias.findAllById(ids);
 		for (Categoria cat : categorias) {
 			System.out.println(cat);
 		}
@@ -107,7 +126,7 @@ Optional<Categoria> optional = repo.findById(2);
 		Categoria cat = new Categoria();
 		cat.setNombre("Finanzas");
 		cat.setDescripcion("Trabajos relacionados con Finanzas y Contabilidad");
-		repo.save(cat);
+		repoCategorias.save(cat);
 		System.out.println(cat);
 	}
 	
@@ -124,7 +143,7 @@ Optional<Categoria> optional = repo.findById(2);
 	 */
 	private void Eliminar() {
 		int idCategoria=5;
-		repo.deleteById(idCategoria);
+		repoCategorias.deleteById(idCategoria);
 		System.out.println("Registro eliminado");
 	}
 	
@@ -132,7 +151,57 @@ Optional<Categoria> optional = repo.findById(2);
 	 * Metodo DeleteAll- interfaz CrudRepository
 	 */
 	private void eliminarTodos() {
-		repo.deleteAll();
+		repoCategorias.deleteAll();
+	}
+	
+	/**
+	 * Metodo deleteallInBatch- interfaz JpaRepository
+	 */
+	private void borrarTodoEnBloque() {
+		repoCategorias.deleteAllInBatch();
+	}
+	/**
+	 * Metodo findAll [ordenados por campos ] -  interfaz JpaRepository
+	 */
+	
+	private void buscarTodosOrdenados() {
+		List<Categoria> categorias = repoCategorias.findAll(Sort.by("nombre").descending());
+		for (Categoria c : categorias) {
+			System.out.println(c.getId() + " " + c.getNombre());
+		}
+	}
+	
+	/**
+	 * Metodo findAll [con paginacion] -  interfaz JpaRepository
+	 */
+	private void buscarTodosPaginacion() {
+		Page<Categoria> page =  repoCategorias.findAll(PageRequest.of(1, 5));
+		System.out.println("Total Registros : " + page.getTotalElements());
+		System.out.println("Total Paginas : " + page.getTotalPages());
+		for (Categoria c : page.getContent()) {
+			System.out.println(c.getId() + " " +  c.getNombre());
+			
+		}
+	}
+	
+	/**
+	 * Metodo findAll [con paginacion y ordenados] -  interfaz JpaRepository
+	 */
+	private void buscarTodosPaginacionOrdenados() {
+		Page<Categoria> page =  repoCategorias.findAll(PageRequest.of(1, 5, Sort.by("nombre").descending()));
+		System.out.println("Total Registros : " + page.getTotalElements());
+		System.out.println("Total Paginas : " + page.getTotalPages());
+		for (Categoria c : page.getContent()) {
+			System.out.println(c.getId() + " " +  c.getNombre());			
+		}	
+	}
+	
+	private void buscarVacantes() {
+		List<Vacante> lista=repoVacantes.findAll();
+		for (Vacante v : lista) {
+			System.out.println(v.getId() + " " + v.getNombre());
+			
+		}
 	}
 
 }
