@@ -199,7 +199,7 @@ Optional<Categoria> optional = repoCategorias.findById(2);
 	private void buscarVacantes() {
 		List<Vacante> lista=repoVacantes.findAll();
 		for (Vacante v : lista) {
-			System.out.println(v.getId() + " " + v.getNombre());
+			System.out.println(v.getId() + " " + v.getNombre() + " => " + v.getCategoria().getNombre());
 			
 		}
 	}
