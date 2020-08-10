@@ -1,5 +1,6 @@
 package net.scrafet;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -13,8 +14,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
 import net.scrafet.model.Categoria;
+import net.scrafet.model.Perfil;
 import net.scrafet.model.Vacante;
 import net.scrafet.repository.CategoriasRepository;
+import net.scrafet.repository.PerfilesRepository;
+import net.scrafet.repository.UsuariosRepository;
 import net.scrafet.repository.VacantesRepository;
 
 @SpringBootApplication
@@ -23,9 +27,16 @@ public class JpaDemoApplication implements CommandLineRunner{
 	@Autowired
 	private CategoriasRepository repoCategorias;
 	
-	
 	@Autowired
 	private VacantesRepository repoVacantes;
+	
+	@Autowired
+	private UsuariosRepository repoUsuarios;
+	
+	@Autowired
+	private PerfilesRepository repoPerfiles;
+	
+	 
 
 	public static void main(String[] args) {
 		SpringApplication.run(JpaDemoApplication.class, args);
@@ -34,7 +45,7 @@ public class JpaDemoApplication implements CommandLineRunner{
 
 	@Override
 	public void run(String... args) throws Exception {
-		buscarVacantes();
+		crearPerfilesAplicacion();
 	}
 	
 	/**
@@ -202,6 +213,56 @@ Optional<Categoria> optional = repoCategorias.findById(2);
 			System.out.println(v.getId() + " " + v.getNombre() + " => " + v.getCategoria().getNombre());
 			
 		}
+	}
+	
+	
+	/**
+	 * Guardar una vacante con  su respectiva categoria
+	 */
+	
+	private void guardarVacante() {
+		Vacante vacante = new Vacante();
+		vacante.setNombre("Profesor de Matematicas");
+		vacante.setDescripcion("Escuela primaria solicita profesor para curso de matematicas");
+		vacante.setFecha(new Date());
+		vacante.setSalario(8500.0);
+		vacante.setEstatus("Aprobada");
+		vacante.setDestacado(0);
+		vacante.setImagen("escuela.png");
+		vacante.setDetalles("<h1>Los requesitos pra profesor de Matematicas</h1>");		
+		/**
+		 * Agregando categoria a la vacante 
+		 */
+		Categoria cat = new Categoria();
+		cat.setId(15);
+		vacante.setCategoria(cat);
+		repoVacantes.save(vacante);
+	}
+	
+	/**
+	 * 
+	 * Regresa la lista de perfiles que manejaremos en la aplicacion
+	 */
+	private List<Perfil> getPerfilesAplicacion(){
+		List<Perfil> lista = new LinkedList();
+		Perfil perfil1 = new Perfil();
+		perfil1.setPerfil("SUPERVISOR");
+		
+		Perfil perfil2 = new Perfil();
+		perfil2.setPerfil("ADMINISTRADOR");
+		
+		Perfil perfil3 = new Perfil();
+		perfil3.setPerfil("USUARIO");
+		
+		lista.add(perfil1);
+		lista.add(perfil2);
+		lista.add(perfil3);
+		
+		return lista;
+	}
+	
+	private void crearPerfilesAplicacion() {
+		repoPerfiles.saveAll(getPerfilesAplicacion());
 	}
 
 }
