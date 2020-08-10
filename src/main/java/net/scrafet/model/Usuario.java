@@ -1,11 +1,18 @@
 package net.scrafet.model;
 
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumns;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
 @Entity
@@ -23,6 +30,23 @@ public class Usuario {
 	private String password;
 	private Integer estatus;
 	private Date fechaRegistro;
+	
+	//tipo fetch Eager : permite recuperar la lista de perfiles en cuanto se realize una consulta al objeto usuario
+	//JoinTable : el primer joincolumn va "idUsuario" porque estamos configurando la union en la clase de usuario, y la llave foranea es inverseJoincolumn
+	//ahora con esta configuracion un usuario podra tener varios perfiles.
+	@ManyToMany(fetch = FetchType.EAGER)
+	@JoinTable(name ="UsuarioPerfil",
+	joinColumns = @JoinColumn(name = "idUsuario"),
+	inverseJoinColumns = @JoinColumn(name = "idPerfil"))	
+	private List<Perfil> perfiles;
+	
+	//metodo para agregar varios pefiles a la vez
+	public void agregar(Perfil tempPerfil) {
+		if (perfiles == null) {
+			perfiles = new LinkedList<Perfil>();
+		}
+		perfiles.add(tempPerfil);
+	}
 	
 	
 	public Integer getId() {
@@ -67,10 +91,21 @@ public class Usuario {
 	public void setFechaRegistro(Date fechaRegistro) {
 		this.fechaRegistro = fechaRegistro;
 	}
+	public List<Perfil> getPerfiles() {
+		return perfiles;
+	}
+	public void setPerfiles(List<Perfil> perfiles) {
+		this.perfiles = perfiles;
+	}
+	
 	@Override
 	public String toString() {
 		return "Usuario [id=" + id + ", username=" + username + ", nombre=" + nombre + ", email=" + email
-				+ ", password=" + password + ", estatus=" + estatus + ", fechaRegistro=" + fechaRegistro + "]";
+				+ ", password=" + password + ", estatus=" + estatus + ", fechaRegistro=" + fechaRegistro + ", perfiles="
+				+ perfiles + "]";
 	}
+	
+	
+
 		
 }

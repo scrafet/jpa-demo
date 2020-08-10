@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 
 import net.scrafet.model.Categoria;
 import net.scrafet.model.Perfil;
+import net.scrafet.model.Usuario;
 import net.scrafet.model.Vacante;
 import net.scrafet.repository.CategoriasRepository;
 import net.scrafet.repository.PerfilesRepository;
@@ -45,7 +46,7 @@ public class JpaDemoApplication implements CommandLineRunner{
 
 	@Override
 	public void run(String... args) throws Exception {
-		crearPerfilesAplicacion();
+	crearUsuarioConUnPerfil();
 	}
 	
 	/**
@@ -263,6 +264,30 @@ Optional<Categoria> optional = repoCategorias.findById(2);
 	
 	private void crearPerfilesAplicacion() {
 		repoPerfiles.saveAll(getPerfilesAplicacion());
+	}
+	
+	/**
+	 * Agregamos un registro de usuario con dos perfiles usando el metodo declarado en la clase de modelo Usuarios
+	 */
+	private void crearUsuarioConUnPerfil() {
+		Usuario user = new Usuario();
+		user.setNombre("Ivan Drago");
+		user.setEmail("drago@gmail.com");
+		user.setFechaRegistro(new Date());
+		user.setUsername("drago");
+		user.setPassword("123");
+		user.setEstatus(1);
+		
+		Perfil per1 = new Perfil();
+		per1.setId(2);
+		
+		Perfil per2 = new Perfil();
+		per2.setId(3);
+		
+		user.agregar(per1);
+		user.agregar(per2);
+		
+		repoUsuarios.save(user);
 	}
 
 }
