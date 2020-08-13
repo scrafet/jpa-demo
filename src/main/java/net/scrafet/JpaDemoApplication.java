@@ -46,7 +46,7 @@ public class JpaDemoApplication implements CommandLineRunner{
 
 	@Override
 	public void run(String... args) throws Exception {
-	buscarUsuario();
+	buscarVacantesVariosEstatus();
 	}
 	
 	/**
@@ -303,5 +303,41 @@ Optional<Categoria> optional = repoCategorias.findById(2);
 			System.out.println("Usuario no encontrado");
 		}
 	}
+	
+	private void buscarUsuarioPorEstatus() {
+		List<Vacante> lista = repoVacantes.findByEstatus("Eliminada");
+		System.out.println("Registros encontrados :   " + lista.size());
+		for (Vacante v : lista) {			
+			System.out.println(v.getId() + " " + v.getNombre() + " " +v.getEstatus());			
+		}
+		
+	}
+	
+	private void buscarVacantesPorDestacadoEstatus() {
+		List<Vacante> lista = repoVacantes.findByDestacadoAndEstatusOrderByIdDesc(1, "Aprobada");
+		System.out.println("Registros encontrados :   " + lista.size());
+		for (Vacante v : lista) {			
+			System.out.println(v.getId() + " " + v.getNombre() + " " +v.getEstatus() + " : " + v.getDestacado() );			
+		}
+		
+	}
+	private void buscarVacanteSalario() {
+		List<Vacante> lista = repoVacantes.findBySalarioBetweenOrderBySalarioDesc(7000, 14000);
+		System.out.println("Registros encontrados :   " + lista.size());
+		for (Vacante v : lista) {			
+			System.out.println(v.getId() + " " + v.getNombre() + " " +v.getEstatus() + " :  S/." + v.getSalario() );			
+		}
+	}
+	
+	private void buscarVacantesVariosEstatus() {
+		String[] estatus = new String[] {"Eliminada","Creada"};
+		List<Vacante> lista = repoVacantes.findByEstatusIn(estatus);
+		System.out.println("Registros encontrados :   " + lista.size());
+		for (Vacante v : lista) {			
+			System.out.println(v.getId() + " " + v.getNombre() + " " +v.getEstatus() + " " + v.getEstatus() );			
+		}
+	}
+	
+	
 
 }
